@@ -45,6 +45,7 @@ connectWithRetry();
 
 // Create HTTP Server for reverse proxy
 const server = http.createServer(async (req, res) => {
+  console.log(host,'host')
   const host = req.headers.host?.toLowerCase();
 
   try {
