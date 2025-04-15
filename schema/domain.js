@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-const domainSchema = new Schema({
+const domainSchema = new mongoose.Schema({
   name: { type: String, required: true },
   registrationDate: { type: Date },
   expiryDate: { type: Date },
   autoRenewal: { type: Boolean, default: true },
   businessId: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   websiteId: { type: Number, required: true },
