@@ -90,6 +90,9 @@ const server = http.createServer(async (req, res) => {
     //   });
     // }
 
+    const baseTarget = "https://staging.identity.dreamemirates.com";
+    const fullPreviewPath = "/website/preview/170588";
+
     const pathname = url.parse(req.url || "").pathname || "";
 
     // ✅ Allow homepage to proxy the preview page
