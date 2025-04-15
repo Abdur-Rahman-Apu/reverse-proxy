@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Domain } = require("domain");
+const { Domain } = require("./schema/domain");
 const http = require("http");
 const httpProxy = require("http-proxy");
 const mongoose = require("mongoose");
