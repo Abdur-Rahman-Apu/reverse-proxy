@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { Domain } = require("domain");
 const http = require("http");
 const httpProxy = require("http-proxy");
 const mongoose = require("mongoose");
@@ -75,6 +76,7 @@ const server = http.createServer(async (req, res) => {
       changeOrigin: true,
     });
   } catch (err) {
+    console.log(err, "err");
     console.error("❌ Internal error:", err.message);
     res.writeHead(500, { "Content-Type": "text/plain" });
     res.end("Internal Server Error");
