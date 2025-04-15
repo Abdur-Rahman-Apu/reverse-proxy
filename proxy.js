@@ -54,7 +54,9 @@ const server = http.createServer(async (req, res) => {
   console.log(host, "host");
 
   try {
-    const domainEntry = await Domain.findOne({ domain: host });
+    const domainEntry = await Domain.findOne({ name: host });
+
+    console.log(domainEntry, "domain entry");
 
     // if (!domainEntry) {
     //   res.writeHead(404, { "Content-Type": "text/plain" });
@@ -64,6 +66,7 @@ const server = http.createServer(async (req, res) => {
     const target =
       domainEntry?.target ??
       "https://staging.identity.dreamemirates.com/website/preview/170588";
+
     console.log(`🌐 ${host} → ${target}`);
 
     // Proxy the request to the target
