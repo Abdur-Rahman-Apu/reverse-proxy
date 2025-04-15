@@ -1,8 +1,7 @@
-require('dotenv').config();
-const http = require('http');
-const httpProxy = require('http-proxy');
-const mongoose = require('mongoose');
-
+require("dotenv").config();
+const http = require("http");
+const httpProxy = require("http-proxy");
+const mongoose = require("mongoose");
 
 // Get environment variables
 const PORT = process.env.PORT || 3001;
@@ -12,15 +11,18 @@ const MONGO_URI = process.env.MONGO_URI;
 const proxy = httpProxy.createProxyServer({});
 
 // Handle CORS headers
-proxy.on('proxyRes', (proxyRes, req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+proxy.on("proxyRes", (proxyRes, req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 });
 
 // Handle OPTIONS (preflight) requests
-proxy.on('proxyReq', (proxyReq, req, res, options) => {
-  if (req.method === 'OPTIONS') {
+proxy.on("proxyReq", (proxyReq, req, res, options) => {
+  if (req.method === "OPTIONS") {
     res.writeHead(200);
     return res.end();
   }
@@ -28,35 +30,40 @@ proxy.on('proxyReq', (proxyReq, req, res, options) => {
 
 // Connect to MongoDB with retry
 function connectWithRetry() {
-  console.log('⏳ Connecting to MongoDB...');
-  mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }).then(() => {
-    console.log('✅ MongoDB connected');
-  }).catch((err) => {
-    console.error('❌ MongoDB connection failed:', err.message);
-    console.log('🔁 Retrying in 5 seconds...');
-    setTimeout(connectWithRetry, 5000);
-  });
+  console.log("⏳ Connecting to MongoDB...");
+  mongoose
+    .connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log("✅ MongoDB connected");
+    })
+    .catch((err) => {
+      console.error("❌ MongoDB connection failed:", err.message);
+      console.log("🔁 Retrying in 5 seconds...");
+      setTimeout(connectWithRetry, 5000);
+    });
 }
 
 connectWithRetry();
 
 // Create HTTP Server for reverse proxy
 const server = http.createServer(async (req, res) => {
-  console.log(host,'host')
   const host = req.headers.host?.toLowerCase();
+  console.log(host, "host");
 
   try {
     const domainEntry = await Domain.findOne({ domain: host });
 
-    if (!domainEntry) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      return res.end(`❌ Domain not found: ${host}`);
-    }
+    // if (!domainEntry) {
+    //   res.writeHead(404, { "Content-Type": "text/plain" });
+    //   return res.end(`❌ Domain not found: ${host}`);
+    // }
 
-    const target = domainEntry.target;
+    const target =
+      domainEntry?.target ??
+      "https://staging.identity.dreamemirates.com/website/preview/170588";
     console.log(`🌐 ${host} → ${target}`);
 
     // Proxy the request to the target
@@ -65,9 +72,9 @@ const server = http.createServer(async (req, res) => {
       changeOrigin: true,
     });
   } catch (err) {
-    console.error('❌ Internal error:', err.message);
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end('Internal Server Error');
+    console.error("❌ Internal error:", err.message);
+    res.writeHead(500, { "Content-Type": "text/plain" });
+    res.end("Internal Server Error");
   }
 });
 
