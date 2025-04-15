@@ -65,17 +65,29 @@ const server = http.createServer(async (req, res) => {
     //   return res.end(`❌ Domain not found: ${host}`);
     // }
 
-    const target =
-      domainEntry?.target ??
-      "https://staging.identity.dreamemirates.com/website/preview/170588";
+    // const target =
+    //   domainEntry?.target ??
+    //   "https://staging.identity.dreamemirates.com/website/preview/170588";
 
-    console.log(`🌐 ${host} → ${target}`);
+    const baseTarget = "https://staging.identity.dreamemirates.com";
+    const fullPageTarget = `${baseTarget}/website/preview/170588`;
 
-    // Proxy the request to the target
-    proxy.web(req, res, {
-      target,
-      changeOrigin: true,
-    });
+    // 👇 Forward only the base request to the full page
+    if (req.url === "/" || req.url === "/website/preview/170588") {
+      proxy.web(req, res, {
+        target: fullPageTarget,
+        changeOrigin: true,
+        ignorePath: true,
+      });
+    }
+
+    // 👇 Everything else like _next/static, images, CSS, etc.
+    else {
+      proxy.web(req, res, {
+        target: baseTarget,
+        changeOrigin: true,
+      });
+    }
   } catch (err) {
     console.log(err, "err");
     console.error("❌ Internal error:", err.message);
