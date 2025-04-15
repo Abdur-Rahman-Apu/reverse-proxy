@@ -15,4 +15,6 @@ const domainSchema = new Schema({
   sslConfigured: { type: Boolean, default: false },
 });
 
-export const Domain = mongoose.model("Domain", domainSchema);
+const Domain = mongoose.model("Domain", domainSchema);
+
+module.exports = Domain;
