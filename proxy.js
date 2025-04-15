@@ -3,6 +3,7 @@ require("dotenv").config();
 const http = require("http");
 const httpProxy = require("http-proxy");
 const mongoose = require("mongoose");
+const url = require("url");
 const Domain = require("./schema/domain");
 
 // Get environment variables
