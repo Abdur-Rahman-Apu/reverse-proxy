@@ -69,25 +69,50 @@ const server = http.createServer(async (req, res) => {
     //   domainEntry?.target ??
     //   "https://staging.identity.dreamemirates.com/website/preview/170588";
 
-    const baseTarget = "https://staging.identity.dreamemirates.com";
-    const fullPageTarget = `${baseTarget}/website/preview/170588`;
+    // const baseTarget = "https://staging.identity.dreamemirates.com";
+    // const fullPageTarget = `${baseTarget}/website/preview/170588`;
 
-    // 👇 Forward only the base request to the full page
-    if (req.url === "/" || req.url === "/website/preview/170588") {
-      proxy.web(req, res, {
-        target: fullPageTarget,
-        changeOrigin: true,
-        ignorePath: true,
-      });
+    // // 👇 Forward only the base request to the full page
+    // if (req.url === "/" || req.url === "/website/preview/170588") {
+    //   proxy.web(req, res, {
+    //     target: fullPageTarget,
+    //     changeOrigin: true,
+    //     ignorePath: true,
+    //   });
+    // }
+
+    // // 👇 Everything else like _next/static, images, CSS, etc.
+    // else {
+    //   proxy.web(req, res, {
+    //     target: baseTarget,
+    //     changeOrigin: true,
+    //   });
+    // }
+
+    const pathname = url.parse(req.url || "").pathname || "";
+
+    // ✅ Allow homepage to proxy the preview page
+    if (pathname === "/") {
+      req.url = fullPreviewPath;
+      proxy.web(req, res, { target: baseTarget });
+      return;
     }
 
-    // 👇 Everything else like _next/static, images, CSS, etc.
-    else {
-      proxy.web(req, res, {
-        target: baseTarget,
-        changeOrigin: true,
-      });
+    // ✅ Allow static assets needed by Next.js
+    if (
+      pathname.startsWith("/_next/") ||
+      pathname.startsWith("/favicon") ||
+      pathname.startsWith("/fonts") ||
+      pathname.startsWith("/images") ||
+      pathname.startsWith("/api/auth") // if your preview uses Next.js auth
+    ) {
+      proxy.web(req, res, { target: baseTarget });
+      return;
     }
+
+    // ❌ Block everything else
+    res.writeHead(403, { "Content-Type": "text/plain" });
+    res.end("403 Forbidden — Access denied.");
   } catch (err) {
     console.log(err, "err");
     console.error("❌ Internal error:", err.message);
