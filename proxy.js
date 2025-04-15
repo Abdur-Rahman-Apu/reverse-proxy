@@ -98,7 +98,7 @@ const server = http.createServer(async (req, res) => {
     // ✅ Allow homepage to proxy the preview page
     if (pathname === "/") {
       req.url = fullPreviewPath;
-      proxy.web(req, res, { target: baseTarget });
+      proxy.web(req, res, { target: baseTarget, secure: false });
       return;
     }
 
@@ -110,7 +110,7 @@ const server = http.createServer(async (req, res) => {
       pathname.startsWith("/images") ||
       pathname.startsWith("/api/auth") // if your preview uses Next.js auth
     ) {
-      proxy.web(req, res, { target: baseTarget });
+      proxy.web(req, res, { target: baseTarget, secure: false });
       return;
     }
 
